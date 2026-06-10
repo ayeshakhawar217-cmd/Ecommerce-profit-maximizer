@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terry's Trousers - Enterprise Profit Maximizer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-stone-100 font-sans p-6">
+
+<div class="max-w-6xl mx-auto bg-[#F8F4EC] rounded-xl shadow-xl p-8 border border-[#D8D1C4]">
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b border-[#D8D1C4]">
+<div>
+<h1 class="text-3xl font-bold text-[#3F4F2C]">👖 Terry's Trousers: Profit Maximizer PRO</h1>
+<p class="text-[#6B6B5E] mt-1 text-sm">Interactive P&L scenario modeler, real-time charting, and scenario comparison tool.</p>
+</div>
+
+<div class="mt-4 md:mt-0 flex space-x-3">
+<button onclick="saveScenario()" class="bg-[#556B2F] hover:bg-[#465826] text-white px-4 py-2 rounded-lg font-medium text-sm">
+💾 Save Scenario
+</button>
+
+<button onclick="exportCSV()" class="bg-[#6B8E23] hover:bg-[#56711B] text-white px-4 py-2 rounded-lg font-medium text-sm">
+📥 Export CSV
+</button>
+
+<button onclick="clearScenarios()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium text-sm">
+🗑 Clear Saved
+</button>
+</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+<div class="lg:col-span-1 space-y-6 bg-[#EFE8D8] p-6 rounded-xl border border-[#D8D1C4]">
+
+<h2 class="text-lg font-bold text-[#3F4F2C]">🎛️ Adjust Strategic Levers</h2>
+
+<div class="bg-white p-4 rounded-lg shadow-sm">
+<label class="flex justify-between text-sm font-semibold">
+<span>Baggy Cargo Return Rate</span>
+<span id="cargoReturnVal">36%</span>
+</label>
+<input type="range" id="cargoReturn" min="15" max="40" value="36" step="1" class="w-full mt-3" oninput="updateCalculations()">
+</div>
+
+<div class="bg-white p-4 rounded-lg shadow-sm">
+<label class="flex justify-between text-sm font-semibold">
+<span>Slim-Fit Denim Return Rate</span>
+<span id="denimReturnVal">28%</span>
+</label>
+<input type="range" id="denimReturn" min="15" max="40" value="28" step="1" class="w-full mt-3" oninput="updateCalculations()">
+</div>
+
+<div class="bg-white p-4 rounded-lg shadow-sm">
+<label class="flex justify-between text-sm font-semibold">
+<span>Return Fee Charged to Customer</span>
+<span id="returnFeeVal">$0.00</span>
+</label>
+<input type="range" id="returnFee" min="0" max="8" value="0" step="0.5" class="w-full mt-3" oninput="updateCalculations()">
+</div>
+
+<div class="bg-white p-4 rounded-lg shadow-sm">
+<label class="flex justify-between text-sm font-semibold">
+<span>Scale Slim-Fit Denim Orders</span>
+<span id="denimVolumeVal">200</span>
+</label>
+<input type="range" id="denimVolume" min="200" max="500" value="200" step="10" class="w-full mt-3" oninput="updateCalculations()">
+</div>
+
+<div class="bg-white p-4 rounded-lg shadow-sm">
+<label class="flex justify-between text-sm font-semibold">
+<span>Marketing / Ad Spend Adjust</span>
+<span id="adSpendVal">$0</span>
+</label>
+<input type="range" id="adSpend" min="-5000" max="10000" value="0" step="500" class="w-full mt-3" oninput="updateCalculations()">
+</div>
+
+</div>
+
+<div class="lg:col-span-2 space-y-6">
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+<div class="bg-[#F3EEE3] rounded-xl p-5">
+<span class="text-xs uppercase">Gross Revenue</span>
+<div id="grossRevenue" class="text-2xl font-extrabold">$107,216.00</div>
+</div>
+
+<div class="bg-[#F3EEE3] rounded-xl p-5">
+<span class="text-xs uppercase">Total Return Costs</span>
+<div id="totalReturnCosts" class="text-2xl font-extrabold text-red-600">$3,659.50</div>
+</div>
+
+<div class="bg-[#E8ECD8] border-l-4 border-[#556B2F] rounded-xl p-5">
+<span class="text-xs uppercase font-bold">Net Profit Delta</span>
+<div id="netProfitDelta" class="text-3xl font-black text-[#556B2F]">+$0.00</div>
+</div>
+
+</div>
+
+<div class="bg-white rounded-xl p-6">
+<h3 class="font-bold mb-4">📊 Scenario Analysis</h3>
+<div class="relative h-64">
+<canvas id="impactChart"></canvas>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="mt-10 border-t pt-6">
+<h3 class="text-lg font-bold mb-4">📋 Saved Scenarios</h3>
+
+<div class="overflow-x-auto border rounded-lg">
+<table class="min-w-full text-sm">
+<thead class="bg-[#EAE4D5]">
+<tr>
+<th class="px-4 py-3">Scenario Name</th>
+<th class="px-4 py-3">Cargo Return %</th>
+<th class="px-4 py-3">Denim Volume</th>
+<th class="px-4 py-3">Return Fee</th>
+<th class="px-4 py-3">Gross Revenue</th>
+<th class="px-4 py-3">Net Profit Impact</th>
+</tr>
+</thead>
+<tbody id="scenarioTableBody"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+const BASELINE_CARGO_ORDERS = 600;
+const CARGO_AOV = 105;
+const CARGO_PROCESSING_COST = 12.50;
+
+const BASELINE_DENIM_ORDERS = 200;
+const DENIM_AOV = 110;
+const DENIM_PROCESSING_COST = 14.00;
+
+const WOOL_REVENUE = 22000;
+const WOOL_RETURN_COST = 445.50;
+
+const BASELINE_REVENUE = 107216;
+const BASELINE_RETURN_COSTS = 3659.50;
+
+let savedScenarios = JSON.parse(localStorage.getItem('savedScenarios')) || [];
+
+const ctx = document.getElementById('impactChart').getContext('2d');
+
+const myChart = new Chart(ctx, {
+type:'bar',
+data:{
+labels:['Gross Revenue','Total Return Costs','Net Profit Delta'],
+datasets:[
+{label:'Baseline',data:[BASELINE_REVENUE,BASELINE_RETURN_COSTS,0],backgroundColor:'#B8B09A'},
+{label:'Projected',data:[BASELINE_REVENUE,BASELINE_RETURN_COSTS,0],backgroundColor:'#556B2F'}
+]
+},
+options:{responsive:true,maintainAspectRatio:false}
+});
+
+function updateCalculations(){
+const cargoReturnPct=parseFloat(cargoReturn.value)/100;
+const denimReturnPct=parseFloat(denimReturn.value)/100;
+const returnFee=parseFloat(document.getElementById("returnFee").value);
+const denimOrders=parseInt(document.getElementById("denimVolume").value);
+const adSpend=parseFloat(document.getElementById("adSpend").value);
+
+cargoReturnVal.innerText=(cargoReturnPct*100)+"%";
+denimReturnVal.innerText=(denimReturnPct*100)+"%";
+returnFeeVal.innerText="$"+returnFee.toFixed(2);
+denimVolumeVal.innerText=denimOrders;
+adSpendVal.innerText="$"+adSpend.toLocaleString();
+
+const cargoRevenue=BASELINE_CARGO_ORDERS*CARGO_AOV;
+const cargoReturns=BASELINE_CARGO_ORDERS*cargoReturnPct;
+const cargoReturnCost=cargoReturns*CARGO_PROCESSING_COST;
+
+const denimRevenue=denimOrders*DENIM_AOV;
+const denimReturns=denimOrders*denimReturnPct;
+const denimReturnCost=denimReturns*DENIM_PROCESSING_COST;
+
+const grossRevenue=cargoRevenue+denimRevenue+WOOL_REVENUE;
+const totalReturnCosts=cargoReturnCost+denimReturnCost+WOOL_RETURN_COST;
+
+grossRevenueEl=document.getElementById("grossRevenue");
+grossRevenueEl.innerText="$"+grossRevenue.toLocaleString();
+
+document.getElementById("totalReturnCosts").innerText="$"+totalReturnCosts.toLocaleString();
+
+const totalReturnsCount=cargoReturns+denimReturns+(WOOL_RETURN_COST/14);
+const recapturedFees=totalReturnsCount*returnFee;
+
+const baselineReturnCostsTotal=2430+784+445.5;
+const netSavings=baselineReturnCostsTotal-totalReturnCosts;
+const netMarginFromScale=(denimOrders-200)*(DENIM_AOV*0.30);
+
+const netProfitDelta=netSavings+recapturedFees+netMarginFromScale-adSpend;
+
+document.getElementById("netProfitDelta").innerText=(netProfitDelta>=0?"+$":"-$")+Math.abs(netProfitDelta).toLocaleString();
+
+myChart.data.datasets[1].data=[grossRevenue,totalReturnCosts,netProfitDelta];
+myChart.update();
+}
+
+function saveScenario(){
+const name=prompt("Scenario name:");
+if(!name) return;
+
+const scenario={
+name,
+cargoReturn:cargoReturn.value+"%",
+denimVolume:denimVolume.value,
+returnFee:returnFee.value,
+revenue:grossRevenue.innerText,
+profitDelta:netProfitDelta.innerText
+};
+
+savedScenarios.push(scenario);
+
+localStorage.setItem("savedScenarios",JSON.stringify(savedScenarios));
+
+renderTable();
+}
+
+function renderTable(){
+const tbody=document.getElementById("scenarioTableBody");
+
+tbody.innerHTML='';
+
+savedScenarios.forEach(s=>{
+tbody.innerHTML+=`
+<tr>
+<td class="px-4 py-3">${s.name}</td>
+<td class="px-4 py-3">${s.cargoReturn}</td>
+<td class="px-4 py-3">${s.denimVolume}</td>
+<td class="px-4 py-3">$${s.returnFee}</td>
+<td class="px-4 py-3">${s.revenue}</td>
+<td class="px-4 py-3">${s.profitDelta}</td>
+</tr>`;
+});
+}
+
+function clearScenarios(){
+if(!confirm("Delete all saved scenarios?")) return;
+
+savedScenarios=[];
+localStorage.removeItem("savedScenarios");
+renderTable();
+}
+
+function exportCSV(){
+if(savedScenarios.length===0){
+alert("Save at least one scenario first.");
+return;
+}
+
+let csv="Scenario,Cargo Return,Denim Volume,Return Fee,Gross Revenue,Profit Impact\n";
+
+savedScenarios.forEach(s=>{
+csv+=`${s.name},${s.cargoReturn},${s.denimVolume},${s.returnFee},${s.revenue},${s.profitDelta}\n`;
+});
+
+const blob=new Blob([csv],{type:'text/csv'});
+const a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='terrys_trousers_scenarios.csv';
+a.click();
+}
+
+renderTable();
+updateCalculations();
+</script>
+
+</body>
+</html>
