@@ -1,7 +1,7 @@
 # Terry's Trousers Profit Maximizer
 
 An interactive business analytics dashboard built with HTML, Tailwind CSS, JavaScript, and Chart.js.
-
+Live Demo https://ayeshakhawar217-cmd.github.io/Ecommerce-profit-maximizer/
 ## Features
 
 - Real-time profit modeling
